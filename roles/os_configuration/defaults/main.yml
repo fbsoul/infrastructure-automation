@@ -1,9 +1,17 @@
 ---
-# defaults file for roles/os_configuration
-primary_dns_server: "8.8.8.8 1.1.1.1"
+# time zone task
 
-# Group-specific packages for our application tiers
-loadbalancer_packages:
-  - nginx
-webserver_packages:
-  - httpd
+system_timezone: Asia/Amman
+
+# packages  task
+
+os_packages:
+  - vim
+  - nano
+  - wget
+  - curl
+  - git
+  - rsync
+  - unzip
+  - tar
+  - bash-completion

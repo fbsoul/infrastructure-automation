@@ -1,7 +1,7 @@
-Common
+Role Name
 =========
 
-This is the target host's Operating system CM Automation
+A brief description of the role goes here.
 
 Requirements
 ------------

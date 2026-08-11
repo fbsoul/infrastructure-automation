@@ -1,47 +1,62 @@
 ---
 # playbooks/site.yml
 # Master Infrastructure-as-Code Configuration Management Playbook
-# Architected by: Linux Infrastructure Engineer
+# Architected by: Vinny Firas Bsoul (Linux Infrastructure Engineer)
 
-- name: Phase 1 - Baseline OS Configuration
-  hosts: all
+- name: Stage 1 — Baseline Operating System Configuration
+  hosts: all_vms
+  become: true
   gather_facts: true
+
   tags:
     - os-config
+
   roles:
     - os_configuration
 
 
-- name: Phase 2 - System Performance Optimization
-  hosts: loadbalancer, webservers, db
+- name: Stage 2 — Performance Optimization
+  hosts: loadbalancers, webservers
+  become: true
   gather_facts: false
+
   tags:
     - performance
+
   roles:
     - performance
 
-- name: Phase 3 - Security Enforcement & Hardening
-  hosts: all
+- name: Stage 3 - Security Enforcement & Hardening
+  hosts: all_vms
+  become: true
   gather_facts: false
+
   tags:
     - security
+
   roles:
     - security
 
-- name: Phase 4 - Identity & Access Administration
-  hosts: all
+- name: Stage 4 - Identity & Access Administration
+  hosts: all_vms
+  become: true
   gather_facts: false
+
   tags:
     - useradmin
+
   roles:
     - useradmin
 
-- name: Phase 5 - Configure Load Balancer Tier
+- name: Stage 5 - Application Delivery Layer
   hosts: loadbalancers
   become: true
+  gather_facts: false
+
   tags:
     - lb
     - proxy
+
   roles:
     - os_configuration
     - security

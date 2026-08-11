@@ -1,34 +1,5 @@
 ---
-# tasks file for roles/os_configuration
-- name: Ensure standard corporate DNS servers are configured
-  ansible.builtin.lineinfile:
-    path: /etc/resolv.conf
-    regexp: '^nameserver'
-    line: "nameserver {{ primary_dns_server }}"
-    state: present
-
-- name: Install Nginx on Load Balancer tier
-  ansible.builtin.dnf:
-    name: "{{ loadbalancer_packages }}"
-    state: present
-  when: "'loadbalancers' in group_names"
-
-- name: Install Apache on Web Server tier
-  ansible.builtin.dnf:
-    name: "{{ webserver_packages }}"
-    state: present
-  when: "'webservers' in group_names"
-
-- name: Ensure Nginx is started and enabled on Load Balancer
-  ansible.builtin.service:
-    name: nginx
-    state: started
-    enabled: true
-  when: "'loadbalancers' in group_names"
-
-- name: Ensure Apache is started and enabled on Web Servers
-  ansible.builtin.service:
-    name: httpd
-    state: started
-    enabled: true
-  when: "'webservers' in group_names"
+- ansible.builtin.import_tasks: hostname.yml
+- ansible.builtin.import_tasks: packages.yml
+- ansible.builtin.import_tasks: chrony.yml
+- ansible.builtin.import_tasks: timezone.yml

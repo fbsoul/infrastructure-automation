@@ -21,6 +21,7 @@ installationdir
 # OS files
 .DS_Store
 Thumbs.db
+*.tar.gz
 
 # Personal files
 *.swp

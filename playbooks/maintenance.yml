@@ -1,0 +1,12 @@
+---
+# playbooks/maintenance.yml
+#
+# System maintenance playbook
+
+- name: System Maintenance
+  hosts: all_vms
+  become: true
+  gather_facts: true
+
+  roles:
+    - maintenance

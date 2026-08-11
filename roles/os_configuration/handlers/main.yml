@@ -1,2 +1,11 @@
 ---
 # handlers file for roles/os_configuration
+- name: Restart chronyd
+  service:
+    name: chronyd
+    state: restarted
+
+- name: Reload sshd
+  service:
+    name: sshd
+    state: reloaded

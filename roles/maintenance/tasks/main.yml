@@ -1,0 +1,12 @@
+---
+- name: Update Linux packages
+  ansible.builtin.import_tasks: update.yml
+  when: maintenance_update_packages
+
+- name: Check reboot requirement
+  ansible.builtin.import_tasks: reboot_check.yml
+  when: maintenance_check_reboot
+
+- name: Reboot system
+  ansible.builtin.import_tasks: reboot.yml
+  when: maintenance_reboot

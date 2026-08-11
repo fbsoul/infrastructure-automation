@@ -1,0 +1,12 @@
+---
+- name: Check if reboot is recommended
+  ansible.builtin.command: needs-restarting -r
+  register: reboot_check
+  changed_when: false
+  failed_when: false
+
+- name: Display reboot status
+  ansible.builtin.debug:
+    msg: >
+      {{ inventory_hostname }}
+      reboot required = {{ reboot_check.rc != 0 }}
