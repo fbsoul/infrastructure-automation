@@ -1,2 +1,16 @@
 ---
-- block: []
+# Reboot the host only when:
+# 1. A reboot is actually required
+# 2. maintenance_reboot is explicitly enabled
+
+- name: Reboot system
+  ansible.builtin.reboot:
+    msg: "Reboot initiated by Ansible maintenance role"
+    reboot_timeout: 600
+    connect_timeout: 10
+    pre_reboot_delay: 5
+    post_reboot_delay: 10
+    test_command: "whoami"
+  when:
+    - maintenance_reboot | bool
+    - reboot_check.rc != 0

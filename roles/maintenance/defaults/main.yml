@@ -3,4 +3,4 @@
 
 maintenance_update_packages: true
 maintenance_check_reboot: true
-maintenance_reboot: false
+maintenance_reboot: true
