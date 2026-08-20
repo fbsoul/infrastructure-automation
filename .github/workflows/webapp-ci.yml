@@ -1,0 +1,64 @@
+name: Web App CI
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'webapp/**'
+      - '.github/workflows/webapp-ci.yml'
+
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+
+    runs-on: self-hosted
+
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Show build environment
+        run: |
+          echo "Runner hostname: $(hostname)"
+          echo "Podman version:"
+          podman --version
+          echo "Docker compatibility:"
+          docker --version
+
+      - name: Build Web App v1 image
+        run: |
+          docker build \
+            -t webapp:v1 \
+            ./webapp
+
+      - name: Start Web App v1 container
+        run: |
+          docker rm -f webapp-ci 2>/dev/null || true
+
+          docker run -d \
+            --name webapp-ci \
+            -p 8080:80 \
+            webapp:v1
+
+      - name: Verify Web App v1
+        run: |
+          echo "Waiting for nginx..."
+          sleep 3
+
+          curl --fail \
+            http://localhost:8080
+
+      - name: Show container status
+        if: always()
+        run: |
+          docker ps -a
+          docker logs webapp-ci || true
+
+      - name: Cleanup
+        if: always()
+        run: |
+          docker rm -f webapp-ci 2>/dev/null || true
+          docker rmi webapp:v1 2>/dev/null || true
