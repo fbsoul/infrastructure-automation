@@ -10,10 +10,18 @@ on:
 
   workflow_dispatch:
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ghcr.io/fbsoul/webapp
+
 jobs:
-  build-and-test:
+  build-test-push:
 
     runs-on: self-hosted
+
+    permissions:
+      contents: read
+      packages: write
 
     steps:
 
@@ -57,8 +65,35 @@ jobs:
           docker ps -a
           docker logs webapp-ci || true
 
+      - name: Log in to GHCR
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | \
+            docker login ghcr.io \
+            -u "${{ github.actor }}" \
+            --password-stdin
+
+      - name: Tag image for GHCR
+        run: |
+          docker tag \
+            webapp:v1 \
+            ${{ env.IMAGE_NAME }}:v1
+
+          docker tag \
+            webapp:v1 \
+            ${{ env.IMAGE_NAME }}:${{ github.sha }}
+
+      - name: Push image to GHCR
+        run: |
+          docker push \
+            ${{ env.IMAGE_NAME }}:v1
+
+          docker push \
+            ${{ env.IMAGE_NAME }}:${{ github.sha }}
+
       - name: Cleanup
         if: always()
         run: |
           docker rm -f webapp-ci 2>/dev/null || true
           docker rmi webapp:v1 2>/dev/null || true
+          docker rmi ${{ env.IMAGE_NAME }}:v1 2>/dev/null || true
+          docker rmi ${{ env.IMAGE_NAME }}:${{ github.sha }} 2>/dev/null || true
