@@ -26,11 +26,11 @@ jobs:
 
       - name: Show inventory
         run: |
-          cat hosts
+          cat inventory/lab/hosts.yml
 
       - name: Run ping playbook
         run: |
         
           ansible-playbook \
-            -i hosts \
+            -i inventory/lab/hosts.yml \
             playbooks/ping_playbook.yml
