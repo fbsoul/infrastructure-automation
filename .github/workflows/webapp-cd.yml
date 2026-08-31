@@ -1,0 +1,130 @@
+name: Web App CD
+
+on:
+  workflow_run:
+    workflows:
+      - Web App CI
+    types:
+      - completed
+    branches:
+      - main
+
+  workflow_dispatch:
+
+env:
+  IMAGE_NAME: ghcr.io/fbsoul/webapp
+
+jobs:
+  deploy:
+
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+
+    runs-on: self-hosted
+
+    permissions:
+      contents: read
+
+    concurrency:
+      group: webapp-production
+      cancel-in-progress: false
+
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Set deployment image
+        env:
+          IMAGE_TAG: ${{ github.event.workflow_run.head_sha || github.sha }}
+        run: |
+          IMAGE="${{ env.IMAGE_NAME }}:${IMAGE_TAG}"
+
+          echo "Deploying image:"
+          echo "$IMAGE"
+
+          sed -i \
+            "s|ghcr.io/fbsoul/webapp:PLACEHOLDER|$IMAGE|" \
+            kubernetes/deployment.yaml
+
+      - name: Show deployment manifest
+        run: |
+          grep -n "image:" kubernetes/deployment.yaml
+
+      - name: Verify kubectl
+        run: |
+          which kubectl
+          kubectl version --client
+
+      - name: Create temporary K3s kubeconfig
+        env:
+          K3S_CA: ${{ secrets.K3S_CA }}
+          K3S_SERVER: ${{ secrets.K3S_SERVER }}
+          K3S_TOKEN: ${{ secrets.K3S_TOKEN }}
+        run: |
+
+          CA_FILE="$RUNNER_TEMP/k3s-ca.crt"
+          KUBECONFIG_CD="$RUNNER_TEMP/kubeconfig"
+
+          printf '%s\n' "$K3S_CA" > "$CA_FILE"
+          chmod 600 "$CA_FILE"
+
+          kubectl config --kubeconfig="$KUBECONFIG_CD" \
+            set-cluster webapp-k3s \
+            --server="$K3S_SERVER" \
+            --certificate-authority="$CA_FILE"
+
+          kubectl config --kubeconfig="$KUBECONFIG_CD" \
+            set-credentials webapp-cd \
+            --token="$K3S_TOKEN"
+
+          kubectl config --kubeconfig="$KUBECONFIG_CD" \
+            set-context webapp-cd \
+            --cluster=webapp-k3s \
+            --user=webapp-cd \
+            --namespace=webapp
+
+          kubectl config --kubeconfig="$KUBECONFIG_CD" \
+            use-context webapp-cd
+
+          chmod 600 "$KUBECONFIG_CD"
+
+          echo "KUBECONFIG=$KUBECONFIG_CD" >> "$GITHUB_ENV"
+
+      - name: Verify CD identity
+        run: |
+          kubectl auth whoami
+
+      - name: Verify CD permissions
+        run: |
+          kubectl auth can-i get deployments
+          kubectl auth can-i create deployments
+          kubectl auth can-i update deployments
+          kubectl auth can-i patch deployments
+          kubectl auth can-i get pods
+          kubectl auth can-i get services
+
+      - name: Apply deployment manifest
+        run: |
+          kubectl apply \
+            -f kubernetes/deployment.yaml
+
+      - name: Wait for rollout
+        run: |
+          kubectl rollout status \
+            deployment/webapp \
+            --timeout=120s
+
+      - name: Verify deployment
+        run: |
+          kubectl get deployment webapp
+          kubectl get pods -o wide
+
+      - name: Cleanup temporary credentials
+        if: always()
+        run: |
+          rm -f "$RUNNER_TEMP/k3s-ca.crt"
+          rm -f "$RUNNER_TEMP/kubeconfig"

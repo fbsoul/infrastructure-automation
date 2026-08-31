@@ -3,6 +3,7 @@ kind: Deployment
 
 metadata:
   name: webapp
+  namespace: webapp
   labels:
     app: webapp
 
@@ -21,7 +22,7 @@ spec:
     spec:
       containers:
         - name: webapp
-          image: ghcr.io/fbsoul/webapp:v1
+          image: ghcr.io/fbsoul/webapp:PLACEHOLDER
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
