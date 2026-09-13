@@ -1,3 +1,4 @@
 ---
 
-- ansible.builtin.import_tasks: norootssh.yml
+- name: Disable Root ssh login
+  ansible.builtin.import_tasks: norootssh.yml

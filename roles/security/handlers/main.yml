@@ -1,2 +1,7 @@
 ---
+
 # handlers file for roles/security
+- name: Restart sshd
+  service:
+    name: sshd
+    state: reloaded
