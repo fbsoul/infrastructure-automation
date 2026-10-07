@@ -2,3 +2,8 @@
 
 - name: Disable Root ssh login
   ansible.builtin.import_tasks: norootssh.yml
+  tags: norootssh.yml
+
+- name: fail2ban intrusion-prevention layer
+  ansible.builtin.import_tasks: fail2ban.yml
+  tags: fail2ban

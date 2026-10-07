@@ -1,0 +1,27 @@
+---
+- name: Install Fail2ban package
+  ansible.builtin.dnf:
+    name: fail2ban
+    state: present
+
+- name: Configure fail2ban jail for SSH local overrides
+  ansible.builtin.copy:
+    dest: /etc/fail2ban/jail.local
+    content: |
+      [sshd]
+      enabled = true
+      port = ssh
+      logpath = %(sshd_log)s
+      backend = %(sshd_backend)s
+      maxretry = 5
+      bantime = 1h
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart fail2ban
+
+- name: Enable and start fail2ban service
+  ansible.builtin.systemd:
+    name: fail2ban
+    state: started
+    enabled: true

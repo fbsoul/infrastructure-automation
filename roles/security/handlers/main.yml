@@ -1,7 +1,13 @@
 ---
 
-# handlers file for roles/security
+# sshd handler roles/security
 - name: Restart sshd
-  service:
+  ansible.builtin.systemd:
     name: sshd
     state: reloaded
+
+# fail2ban handler role/security
+- name: Restart fail2ban
+  ansible.builtin.systemd:
+    name: fail2ban
+    state: restarted
