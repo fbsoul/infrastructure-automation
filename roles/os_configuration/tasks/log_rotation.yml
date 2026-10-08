@@ -1,0 +1,22 @@
+---
+- name: Ensure logrotate package is present
+  ansible.builtin.dnf:
+    name: logrotate
+    state: present
+  tags: log_rotation
+
+- name: Enforce aggressive retention policy for system logs
+  ansible.builtin.lineinfile:
+    path: /etc/logrotate.d/rsyslog
+    insertafter: 'missingok'
+    line: '    rotate 3'
+    firstmatch: yes
+    state: present
+  tags: log_rotation
+
+- name: Ensure logrotate systemd timer is enabled and active
+  ansible.builtin.systemd:
+    name: logrotate.timer
+    state: started
+    enabled: true
+  tags: log_rotation
