@@ -1,0 +1,33 @@
+---
+# playbooks/k8s_node_readiness.yml
+# Kubernetes Cluster Node Status Verification Playbook
+# Enterprise Core Orchestration Layer
+# Architected by: Vinny Firas Bsoul (Linux Infrastructure Engineer)
+
+- name: Verify K3s Cluster Node Readiness
+  hosts: loadbalancer
+  become: true
+  gather_facts: false
+
+  tasks:
+    # --- STEP 1: COLLECT THE DATA ---
+    - name: Fetch active Kubernetes cluster node data
+      ansible.builtin.command: kubectl get nodes -o json
+      register: k3s_nodes_raw
+      changed_when: false
+
+    # --- STEP 2: PARSE THE DATA ---
+    - name: Parse node payload structure
+      ansible.builtin.set_fact:
+        k3s_nodes: "{{ (k3s_nodes_raw.stdout | from_json)['items'] }}"
+
+    # --- STEP 3: CHECK THE HEALTH ---
+    - name: Evaluate status criteria for cluster nodes
+      ansible.builtin.assert:
+        that:
+          - "item.status.conditions | selectattr('type', 'equalto', 'Ready') | map(attribute='status') | first == 'True'"
+        fail_msg: "ALERT: Cluster node [{{ item.metadata.name }}] is NOT ready!"
+        success_msg: "SUCCESS: Cluster node [{{ item.metadata.name }}] is completely healthy and responsive."
+      loop: "{{ k3s_nodes }}"
+      loop_control:
+        label: "{{ item.metadata.name }}"
