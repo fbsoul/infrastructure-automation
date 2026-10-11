@@ -1,0 +1,14 @@
+===============================================================================
+ Welcome to the Infrastructure Core Node: {{ ansible_facts['hostname'] | upper }}
+ Classification: {{ motd_system_classification }}
+ Environment:    {{ motd_environment_label }}
+===============================================================================
+ - Operating System: {{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_version'] }}
+ - Kernel Level:     {{ ansible_facts['kernel'] }}
+ - Virtualization:   {{ ansible_facts['virtualization_type'] }}
+ - Core Allocation:  {{ ansible_facts['processor_vcpus'] }} vCPUs / {{ (ansible_facts['memtotal_mb'] / 1024) | round(1) }} GB RAM
+ - Local Management IP:   {{ ansible_facts['default_ipv4']['address'] }}
+-------------------------------------------------------------------------------
+ For administrative escalations, email: {{ motd_admin_contact }}
+ Managed securely via Ansible Infrastructure-as-Code Configuration Management.
+===============================================================================

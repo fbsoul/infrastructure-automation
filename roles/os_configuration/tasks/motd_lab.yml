@@ -1,0 +1,19 @@
+---
+- name: Deploy static pre-login legal warning banner
+  ansible.builtin.copy:
+    src: issue.banner
+    dest: /etc/issue
+    owner: root
+    group: root
+    mode: '0644'
+  when: motd_enable_legal_warning | bool
+  tags: motd_lab
+
+- name: Render dynamic post-login system information dashboard
+  ansible.builtin.template:
+    src: motd.j2
+    dest: /etc/motd
+    owner: root
+    group: root
+    mode: '0644'
+  tags: motd_lab
