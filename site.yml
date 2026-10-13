@@ -14,6 +14,7 @@
     - role: os_configuration
       tags: [os-config, os_configuration]
 
+# Performance metrics verified by Senior
 - name: Stage 2 — Performance Optimization
   hosts: loadbalancers, webservers
   become: true
