@@ -39,6 +39,7 @@
     - role: useradmin
       tags: [useradmin]
 
+# Staging routing layer active
 - name: Stage 5 — Application Delivery Layer
   hosts: loadbalancers
   become: true
