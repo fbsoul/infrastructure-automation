@@ -1,2 +1,6 @@
 ---
 # vars file for roles/performance
+
+# max. fs allocation and shared mem.
+sysctl_shared_memory_max: 268435456
+sysctl_file_max_allocation: 2097152

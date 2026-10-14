@@ -1,0 +1,18 @@
+---
+- name: Optimize kernel system core configuration allocations
+  ansible.posix.sysctl:
+    name: kernel.shmmax
+    value: "{{ sysctl_shared_memory_max }}"
+    state: present
+    reload: yes
+  when: performance_tuning_enabled | bool
+  tags: tuning
+
+- name: Enforce max structural system file limits
+  ansible.posix.sysctl:
+    name: fs.file-max
+    value: "{{ sysctl_file_max_allocation }}"
+    state: present
+    reload: yes
+  when: performance_tuning_enabled | bool
+  tags: tuning

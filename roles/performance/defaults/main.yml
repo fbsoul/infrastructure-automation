@@ -1,2 +1,5 @@
 ---
 # defaults file for roles/performance
+
+performance_optimization_profile: "enterprise-compute-node"
+performance_tuning_enabled: true

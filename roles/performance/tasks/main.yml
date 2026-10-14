@@ -1,2 +1,5 @@
 ---
 # tasks file for roles/performance
+
+- ansible.builtin.import_tasks: max_fs_shared_mem.yml
+  tags: max_fs_shared_mem
