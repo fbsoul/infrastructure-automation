@@ -23,6 +23,7 @@
     - role: performance
       tags: [performance]
 
+# security stage verified by senior developer.
 - name: Stage 3 — Security Enforcement & Hardening
   hosts: all_vms
   become: true
