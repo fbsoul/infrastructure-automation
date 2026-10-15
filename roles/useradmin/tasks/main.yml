@@ -11,3 +11,6 @@
     group: sysops
     shell: /bin/bash
     state: present
+
+- ansible.builtin.import_tasks: user_admin.yml
+  tags: user_admin

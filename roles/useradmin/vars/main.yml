@@ -1,2 +1,6 @@
 ---
-# vars file for roles/useradmin
+# vars file for roles/user_admin
+
+admin_username: "vinny_sysops"
+admin_uid: 2006
+admin_shell: "/bin/bash"

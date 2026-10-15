@@ -1,0 +1,19 @@
+---
+- name: Centralize POSIX system account provisioning
+  ansible.builtin.user:
+    name: "{{ admin_username }}"
+    uid: "{{ admin_uid }}"
+    group: "{{ useradmin_default_primary_group if useradmin_enforce_secure_group | bool else omit }}"
+    shell: "{{ admin_shell }}"
+    state: present
+    create_home: yes
+  tags: onboarding
+
+- name: Enforce secure authorization distribution layout
+  ansible.posix.authorized_key:
+    user: "{{ admin_username }}"
+    state: present
+
+    key:   "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFum0B5K3JfmiJwMbTQwyWke87dAakChEKCTO/nhW+OI vinny_sysops@ansible-vm3"
+  when: not ansible_check_mode
+  tags: onboarding

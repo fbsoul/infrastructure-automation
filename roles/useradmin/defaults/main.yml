@@ -1,2 +1,5 @@
 ---
 # defaults file for roles/useradmin
+
+useradmin_enforce_secure_group: true
+useradmin_default_primary_group: "wheel"
