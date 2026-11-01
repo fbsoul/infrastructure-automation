@@ -41,14 +41,32 @@ jobs:
         env:
           IMAGE_TAG: ${{ github.event.workflow_run.head_sha || github.sha }}
         run: |
+          set -euo pipefail
+
           IMAGE="${{ env.IMAGE_NAME }}:${IMAGE_TAG}"
+          MANIFEST="kubernetes/deployment.yaml"
 
           echo "Deploying image:"
           echo "$IMAGE"
 
-          sed -i \
-            "s|ghcr.io/fbsoul/webapp:PLACEHOLDER|$IMAGE|" \
-            kubernetes/deployment.yaml
+          if ! grep -Eq \
+            '^[[:space:]]*image:[[:space:]]*ghcr.io/fbsoul/webapp:[^[:space:]]+' \
+            "$MANIFEST"; then
+            echo "ERROR: Expected webapp image reference was not found."
+            exit 1
+          fi
+
+          sed -i -E \
+            "s|(^[[:space:]]*image:[[:space:]]*)ghcr.io/fbsoul/webapp:[^[:space:]]+|\1${IMAGE}|" \
+            "$MANIFEST"
+
+          if ! grep -Fq "image: ${IMAGE}" "$MANIFEST"; then
+            echo "ERROR: Manifest image verification failed."
+            exit 1
+          fi
+
+          echo "Verified manifest image:"
+          grep -n 'image:' "$MANIFEST"
 
       - name: Show deployment manifest
         run: |

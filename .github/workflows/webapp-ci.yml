@@ -8,6 +8,12 @@ on:
       - 'webapp/**'
       - '.github/workflows/webapp-ci.yml'
 
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'webapp/**'
+      - '.github/workflows/webapp-ci.yml'
   workflow_dispatch:
 
 env:
@@ -15,8 +21,59 @@ env:
   IMAGE_NAME: ghcr.io/fbsoul/webapp
 
 jobs:
-  build-test-push:
+  pr-validation:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
 
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout pull request
+        uses: actions/checkout@v4
+
+      - name: Build Webapp validation image
+        run: |
+          docker build \
+            -t webapp:pr-validation \
+            ./webapp
+
+      - name: Start validation container
+        run: |
+          docker run -d \
+            --name webapp-pr-validation \
+            -p 8080:80 \
+            webapp:pr-validation
+
+      - name: Verify HTTP response and Webapp v2 content
+        run: |
+          set -euo pipefail
+
+          for attempt in $(seq 1 10); do
+            if curl --fail --silent \
+              http://localhost:8080 \
+              -o /tmp/webapp-response.html; then
+              break
+            fi
+            sleep 2
+          done
+
+          test -s /tmp/webapp-response.html
+
+          grep -Fq \
+            'We reached the edge of the Milky Way galaxy!' \
+            /tmp/webapp-response.html
+
+          echo "PASS: HTTP response and Webapp v2 headline verified"
+
+      - name: Cleanup validation container
+        if: always()
+        run: |
+          docker rm -f webapp-pr-validation 2>/dev/null || true
+          docker rmi webapp:pr-validation 2>/dev/null || true
+
+  build-test-push:
+    if: github.event_name != 'pull_request'
     runs-on: self-hosted
 
     permissions:
