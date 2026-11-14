@@ -10,34 +10,15 @@ rules:
       - apps
     resources:
       - deployments
-      - deployments/status
-      - replicasets
     verbs:
       - get
-      - list
-      - watch
       - create
-      - update
       - patch
+      - watch
 
   - apiGroups:
       - ""
     resources:
       - pods
-      - pods/status
     verbs:
-      - get
       - list
-      - watch
-
-  - apiGroups:
-      - ""
-    resources:
-      - services
-    verbs:
-      - get
-      - list
-      - watch
-      - create
-      - update
-      - patch

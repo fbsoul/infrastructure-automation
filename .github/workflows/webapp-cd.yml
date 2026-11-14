@@ -118,12 +118,11 @@ jobs:
 
       - name: Verify CD permissions
         run: |
-          kubectl auth can-i get deployments
-          kubectl auth can-i create deployments
-          kubectl auth can-i update deployments
-          kubectl auth can-i patch deployments
-          kubectl auth can-i get pods
-          kubectl auth can-i get services
+          kubectl auth can-i get deployments -n webapp
+          kubectl auth can-i create deployments -n webapp
+          kubectl auth can-i patch deployments -n webapp
+          kubectl auth can-i watch deployments -n webapp
+          kubectl auth can-i list pods -n webapp
 
       - name: Apply deployment manifest
         run: |
